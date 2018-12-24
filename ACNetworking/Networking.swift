@@ -53,18 +53,18 @@ open class Networking {
     
     public typealias Completion = (DataRequest?, NetCache.CacheType, Any?, Error?) -> Void
 
-    static let shared = Networking()
+    public static let shared = Networking()
     
-    let sessionManager: SessionManager
+    public let sessionManager: SessionManager
     
-    let responseCache:NetCache
+    public let responseCache:NetCache
     
-    init(sessionManager: SessionManager = SessionManager.default, responseCache: NetCache = NetCache()) {
+    public init(sessionManager: SessionManager = SessionManager.default, responseCache: NetCache = NetCache()) {
         self.sessionManager = sessionManager
         self.responseCache = responseCache
     }
     
-    convenience init(configuration: URLSessionConfiguration, cacheNameSpace: String = "defaultCache", cacheDirectory: String? = nil) {
+    public convenience init(configuration: URLSessionConfiguration, cacheNameSpace: String = "defaultCache", cacheDirectory: String? = nil) {
         self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: cacheNameSpace, diskDirectory: cacheDirectory))
     }
     //MARK: Public

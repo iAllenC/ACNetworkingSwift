@@ -145,16 +145,16 @@ open class NetCache {
     }
 
     /// 缓存目录名称
-    let nameSpace: String
+    public let nameSpace: String
     
     /// 缓存目录
-    let diskDirectory: String
+    public let diskDirectory: String
     
     /// 文件管理
-    let fileManager = FileManager()
+    public let fileManager = FileManager()
     
     /// 读写串行Queue
-    let ioQueue = DispatchQueue(label: "com.acnetworking.netcache")
+    private let ioQueue = DispatchQueue(label: "com.acnetworking.netcache")
     
     /// 内存缓存
     private let memoryCache = MemoryCache()
@@ -164,7 +164,7 @@ open class NetCache {
     /// - Parameters:
     ///   - nameSpace: 缓存目录名称
     ///   - directory: 缓存目录
-    init(nameSpace: String = "defaultCache", diskDirectory directory: String? = nil) {
+    public init(nameSpace: String = "defaultCache", diskDirectory directory: String? = nil) {
         self.nameSpace = nameSpace
         self.memoryCache.name = nameSpace
         if let cacheDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first {
