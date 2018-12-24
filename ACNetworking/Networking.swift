@@ -48,16 +48,25 @@ open class Networking {
     
     public enum NetFetchError: Error {
         case noCache
+        case storeError
     }
     
     public typealias Completion = (DataRequest?, NetCache.CacheType, Any?, Error?) -> Void
 
     static let shared = Networking()
     
-    var sessionManager = SessionManager.default
+    let sessionManager: SessionManager
     
-    let responseCache = NetCache()
+    let responseCache:NetCache
     
+    init(sessionManager: SessionManager = SessionManager.default, responseCache: NetCache = NetCache()) {
+        self.sessionManager = sessionManager
+        self.responseCache = responseCache
+    }
+    
+    convenience init(configuration: URLSessionConfiguration, cacheNameSpace: String = "defaultCache", cacheDirectory: String? = nil) {
+        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: cacheNameSpace, diskDirectory: cacheDirectory))
+    }
     //MARK: Public
     
     /// 根据传入的method和options发起(post/get)请求,或获取本地数据
@@ -111,8 +120,7 @@ open class Networking {
     @discardableResult
     func fetchNet(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest {
         let request = sessionManager.request(url, method: method, parameters: parameters, encoding: encoding, headers: nil)
-        
-        return request.responseJSON { [weak self, weak request]response in
+        return request.responseJSON { [weak self]response in
             switch(response.result) {
             case .success(let v):
                 self?.handleHttpSuccess(url: url, parameters: parameters, request: request, expires: expire, options: options, response: v, keyGenerator: generator, completion: completion)
@@ -294,7 +302,7 @@ open class Networking {
     private func handleHttpSuccess(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expires: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, response: Any, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
         completion?(request, .disk, response, nil)
         if options.contains(.deleteCache) {
-            responseCache.deleteResponse(forUrl: url, param: parameters)
+            return responseCache.deleteResponse(forUrl: url, param: parameters)
         }
         if !options.contains(.notUpdateCache) {
             responseCache.storeResponse(response, forUrl: url, param: parameters, keyGenerator: generator)
