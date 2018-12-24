@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
     s.name         = "ACNetworkingSwift"
-    s.version      = "0.0.1"
+    s.version      = "0.0.2"
     s.platform     = :ios, "9.0"
     s.ios.deployment_target = '9.0'
     s.summary      = "A networking tool with memory and disk cache in swift" #简介
@@ -18,6 +18,7 @@ Pod::Spec.new do |s|
     s.source       = { :git => "https://github.com/iAllenC/ACNetworkingSwift.git", :tag => "#{s.version}" }
     s.source_files  = "ACNetworking/*.swift"
     s.requires_arc = true
+    s.swift_version = "4.0"
     s.dependency "Alamofire", "~> 4.0"
 
     # s.framework  = "SomeFramework"
