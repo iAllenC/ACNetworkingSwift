@@ -7,18 +7,18 @@
 #
 
 Pod::Spec.new do |s|
-    s.name         = "ACNetworking"
-    s.version      = "1.0.3"
+    s.name         = "ACNetworkingSwift"
+    s.version      = "0.0.1"
     s.platform     = :ios, "9.0"
     s.ios.deployment_target = '9.0'
-    s.summary      = "A networking tool with memory and disk cache" #简介
-    s.homepage     = "https://github.com/iAllenC/ACNetworking.git"
+    s.summary      = "A networking tool with memory and disk cache in swift" #简介
+    s.homepage     = "https://github.com/iAllenC/ACNetworkingSwift.git"
     s.license      = { :type => "MIT", :file => "LICENSE" }
-    s.author             = { "AllenChen" => "iallenchen@foxmail.com" }
-    s.source       = { :git => "https://github.com/iAllenC/ACNetworking.git", :tag => "#{s.version}" }
-    s.source_files  = "ACNetworking/*.{h,m}"
+    s.author       = { "AllenChen" => "iallenchen@foxmail.com" }
+    s.source       = { :git => "https://github.com/iAllenC/ACNetworkingSwift.git", :tag => "#{s.version}" }
+    s.source_files  = "ACNetworking/*.swift"
     s.requires_arc = true
-    s.dependency "AFNetworking", "~> 3.0"
+    s.dependency "Alamofire", "~> 4.0"
 
     # s.framework  = "SomeFramework"
     # s.frameworks = "SomeFramework", "AnotherFramework"
