@@ -21,8 +21,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         let url = "https://free-api.heweather.com/v5/weather"
         let param = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "32,118.5"]
-        Networking.shared.getLocalThenNet(fromUrl: url, parameters: param) { (cacheType, response, error) in
-            print(response ?? "")
+        Networking.shared.getLocalThenNet(fromUrl: url, parameters: param) { (request, cacheType, response, error) in
+            print("Request:\n\(request),\nResposne:\n\(response),\n Error:\n\(error)")
         }
     }
 }

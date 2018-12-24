@@ -168,7 +168,7 @@ open class NetCache {
         self.nameSpace = nameSpace
         self.memoryCache.name = nameSpace
         if let cacheDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first {
-            self.diskDirectory = (("com.acnetworking.netcache." + cacheDirectory) as NSString).appendingPathComponent(self.nameSpace)
+            self.diskDirectory = (cacheDirectory as NSString).appendingPathComponent("com.acnetworking.netcache." + self.nameSpace)
         } else {
             self.diskDirectory = self.nameSpace
         }
@@ -394,7 +394,7 @@ open class NetCache {
     /// 获取缓存文件存储路径
     ///
     /// - Parameter key: 文件存储key
-    /// - Returns: l缓存文件存储路径
+    /// - Returns: 缓存文件存储路径
     private func filePath(forStoreKey key: String)-> String? {
         if !fileManager.fileExists(atPath: diskDirectory) {
             do {
