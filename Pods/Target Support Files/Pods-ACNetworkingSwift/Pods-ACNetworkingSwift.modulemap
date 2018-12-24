@@ -1,0 +1,6 @@
+framework module Pods_ACNetworkingSwift {
+  umbrella header "Pods-ACNetworkingSwift-umbrella.h"
+
+  export *
+  module * { export * }
+}
