@@ -416,7 +416,7 @@ open class NetCache {
             exists = fileManager.fileExists(atPath: (filePath as NSString).deletingPathExtension)
         }
         if exists {
-            exists = !fileExpired(atPath: key, expiresIn: expire)
+            exists = !fileExpired(atPath: filePath, expiresIn: expire)
         }
         return exists
     }
