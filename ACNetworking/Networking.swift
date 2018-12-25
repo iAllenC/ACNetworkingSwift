@@ -59,14 +59,26 @@ open class Networking {
     
     public let responseCache:NetCache
     
+    /// 通过传入的SessionManager和NetCache构造实例
+    ///
+    /// - Parameters:
+    ///   - sessionManager: SessionManager
+    ///   - responseCache: 缓存工具
     public init(sessionManager: SessionManager = SessionManager.default, responseCache: NetCache = NetCache()) {
         self.sessionManager = sessionManager
         self.responseCache = responseCache
     }
     
-    public convenience init(configuration: URLSessionConfiguration, cacheNameSpace: String = "defaultCache", cacheDirectory: String? = nil) {
-        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: cacheNameSpace, diskDirectory: cacheDirectory))
+    /// 通过传入的configuration,namespace和directory构造实例
+    ///
+    /// - Parameters:
+    ///   - configuration: sessionConfiguration
+    ///   - namespace: 缓存目录命名空间
+    ///   - directory: 缓存目录path
+    public convenience init(configuration: URLSessionConfiguration, cacheNamespace namespace: String = "defaultCache", cacheDirectory directory: String? = nil) {
+        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: namespace, diskDirectory: directory))
     }
+    
     //MARK: Public
     
     /// 根据传入的method和options发起(post/get)请求,或获取本地数据
@@ -300,7 +312,7 @@ open class Networking {
     ///   - generator: 存储key生成器
     ///   - completion: 回调
     private func handleHttpSuccess(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expires: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, response: Any, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
-        completion?(request, .disk, response, nil)
+        completion?(request, .net, response, nil)
         if options.contains(.deleteCache) {
             return responseCache.deleteResponse(forUrl: url, param: parameters)
         }
@@ -331,7 +343,7 @@ open class Networking {
             }
         } else {
             responseCache.fetchResponse(forUrl: url, param: parameters, expiresIn: expire, keyGenerator: generator) { (cacheType, response) in
-                completion?(request, cacheType, response, cacheType == .none ? error : nil)
+                completion?(request, cacheType, response, cacheType == .none ? NetFetchError.noCache : nil)
             }
             if options.contains(.deleteCache) {
                 responseCache.deleteResponse(forUrl: url, param: parameters)
@@ -355,7 +367,7 @@ open class Networking {
         if options.contains(.localOnly) { return true }
         //option优先读缓存或先读缓存,返回本地是否有未过期缓存
         if options.contains(.localFirst) || options.contains(.localAndNet) {
-            return responseCache.cacheExists(forUrl: url, param: param)
+            return responseCache.cacheExists(forUrl: url, param: param, expirsIn: expire)
         }
         //以上option均未传,不读缓存
         return false

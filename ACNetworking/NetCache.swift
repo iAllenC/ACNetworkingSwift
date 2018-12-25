@@ -18,34 +18,82 @@ open class NetCache {
     
     public enum CacheType {
         case none
-        case memory
-        case disk
+        case memory(updateDate: Date)
+        case disk(updateDate: Date)
         case net
+        
+        static public func ==(lhs: CacheType, rhs: CacheType) -> Bool {
+            switch (lhs, rhs) {
+            case (.none, .none), (.memory, .memory), (.disk, .disk), (.net, .net):
+                return true
+            default:
+                return false
+            }
+        }
     }
     
     public typealias FetchCompletion = (CacheType, Any?) -> Void
 
     open class MemoryCache: NSCache<NSString, AnyObject>  {
         
-        var expireDateDict: [NSString: Date] = [:]
+        var expireDateDict: [String: Date] = [:]
         
-        var addedDateDict: [NSString: Date] = [:]
+        var addedDateDict: [String: Date] = [:]
 
         //MARK: Override
         
         override open func object(forKey key: NSString) -> AnyObject? {
-            if let expireDate = expireDateDict[key], expireDate.timeIntervalSinceNow <= 0 {
+            if let expireDate = expireDateDict[key as String], expireDate.timeIntervalSinceNow <= 0 {
                 return nil
             }
             return super.object(forKey: key)
         }
         
         override open func setObject(_ obj: AnyObject, forKey key: NSString) {
-            setObject(obj, forKey: key, refreshExpireDate: true)
+            setObject(obj, forKey: key as String, refreshExpireDate: true)
         }
         
         override open func setObject(_ obj: AnyObject, forKey key: NSString, cost g: Int) {
+            setObject(obj, forKey: key as String, cost: g, refreshExpireDate: true)
+        }
+        
+        //MARK: Public
+        
+        /// object(forKey:)的String版
+        ///
+        /// - Parameter key: key
+        /// - Returns: object
+        open func object(forKey key: String) -> AnyObject? {
+            if let expireDate = expireDateDict[key], expireDate.timeIntervalSinceNow <= 0 {
+                return nil
+            }
+            return super.object(forKey: key as NSString)
+        }
+        
+        /// setObject(obj:forKey:)的String版
+        ///
+        /// - Parameters:
+        ///   - obj: object
+        ///   - key: key
+        open func setObject(_ obj: AnyObject, forKey key: String) {
+            setObject(obj, forKey: key, refreshExpireDate: true)
+        }
+        
+        /// setObject(obj:forKey:cost:)的String版
+        ///
+        /// - Parameters:
+        ///   - obj: object
+        ///   - key: key
+        ///   - g: 消耗
+        open func setObject(_ obj: AnyObject, forKey key: String, cost g: Int) {
             setObject(obj, forKey: key, cost: g, refreshExpireDate: true)
+        }
+        
+        /// removeObject(forKey:)的String版
+        ///
+        /// - Parameter key: key
+        open func removeObject(forKey key: String) {
+            super.removeObject(forKey: key as NSString)
         }
         
         /// 缓存对象
@@ -54,8 +102,8 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - refresh: 是否要刷新过期时间(如果有)
-        func setObject(_ obj: AnyObject, forKey key: NSString, refreshExpireDate refresh: Bool) {
-            super.setObject(obj, forKey: key)
+        func setObject(_ obj: AnyObject, forKey key: String, refreshExpireDate refresh: Bool) {
+            super.setObject(obj, forKey: key as NSString)
             addedDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
                 expireDateDict.removeValue(forKey: key)
@@ -69,8 +117,8 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - refresh: 是否要刷新过期时间(如果有)
-        func setObject(_ obj: AnyObject, forKey key: NSString, cost g: Int, refreshExpireDate refresh: Bool) {
-            super.setObject(obj, forKey: key, cost: g)
+        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, refreshExpireDate refresh: Bool) {
+            super.setObject(obj, forKey: key as NSString, cost: g)
             addedDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
                 expireDateDict.removeValue(forKey: key)
@@ -83,7 +131,7 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - expire: 过期时长
-        func setObject(_ obj: AnyObject, forKey key: NSString, expiresIn expire: TimeInterval) {
+        func setObject(_ obj: AnyObject, forKey key: String, expiresIn expire: TimeInterval) {
             setObject(obj, forKey: key, expireDate: Date(timeIntervalSinceNow: expire))
         }
         
@@ -93,7 +141,7 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - date: 过期日期
-        func setObject(_ obj: AnyObject, forKey key: NSString, expireDate date: Date?) {
+        func setObject(_ obj: AnyObject, forKey key: String, expireDate date: Date?) {
             if let date = date {
                 expireDateDict.updateValue(date, forKey: key)
             } else {
@@ -109,7 +157,7 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - expire: 过期时长
-        func setObject(_ obj: AnyObject, forKey key: NSString, cost g: Int, expiresIn expire: TimeInterval) {
+        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expiresIn expire: TimeInterval) {
             setObject(obj, forKey: key, cost: g, expireDate: Date(timeIntervalSinceNow: expire))
         }
         
@@ -120,7 +168,7 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - date: 过期日期
-        func setObject(_ obj: AnyObject, forKey key: NSString, cost g: Int, expireDate date: Date?) {
+        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expireDate date: Date?) {
             if let date = date {
                 expireDateDict.updateValue(date, forKey: key)
             } else {
@@ -135,11 +183,15 @@ open class NetCache {
         ///   - key: key
         ///   - expire: 过期时长
         /// - Returns: 缓存对象或nil
-        func object(forKey key: NSString, expiresIn expire: TimeInterval) -> AnyObject? {
+        func object(forKey key: String, expiresIn expire: TimeInterval) -> AnyObject? {
             if let addedDate = addedDateDict[key], (addedDate + expire).timeIntervalSinceNow <= 0 {
                 return nil
             }
             return object(forKey: key)
+        }
+        
+        func updateDate(forKey key: String) -> Date? {
+            return addedDateDict[key]
         }
         
     }
@@ -167,11 +219,8 @@ open class NetCache {
     public init(nameSpace: String = "defaultCache", diskDirectory directory: String? = nil) {
         self.nameSpace = nameSpace
         self.memoryCache.name = nameSpace
-        if let cacheDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first {
-            self.diskDirectory = (cacheDirectory as NSString).appendingPathComponent("com.acnetworking.netcache." + self.nameSpace)
-        } else {
-            self.diskDirectory = self.nameSpace
-        }
+        let cacheDirectory = directory ?? NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first ?? ""
+        self.diskDirectory = (cacheDirectory as NSString).appendingPathComponent("com.acnetworking.netcache." + self.nameSpace)
     }
     
     //MARK: Check
@@ -207,7 +256,7 @@ open class NetCache {
     ///   - expire: 过期时间
     /// - Returns: 是否存在内存缓存
     open func memoryCacheExists(forKey key: String, expiresIn expire: TimeInterval = .never) -> Bool {
-        return memoryCache.object(forKey: key as NSString, expiresIn: expire) != nil
+        return memoryCache.object(forKey: key, expiresIn: expire) != nil
     }
     
     /// 检查传入key是否存在磁盘缓存
@@ -262,7 +311,7 @@ open class NetCache {
         if !toMemory && !toDisk { return }
         let key = generator(url, param)
         if toMemory {
-            memoryCache.setObject(response as AnyObject, forKey: key as NSString)
+            memoryCache.setObject(response as AnyObject, forKey: key)
         }
         if toDisk {
             storeResponseToDisk(response, forKey: key)
@@ -295,8 +344,8 @@ open class NetCache {
     ///   - completion: 回调
     open func fetchResponse(forUrl url: URLConvertible, param: Parameters?, expiresIn expire: TimeInterval = .never, async: Bool = true, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: @escaping FetchCompletion) {
         let storeKey = generator(url, param)
-        if let result = memoryCache.object(forKey: storeKey as NSString, expiresIn: expire) {
-            return completion(.memory, result)
+        if let result = memoryCache.object(forKey: storeKey, expiresIn: expire) {
+            return completion(.memory(updateDate: memoryCache.updateDate(forKey: storeKey) ?? .distantPast), result)
         }
         guard let filePath = filePath(forStoreKey: storeKey) else { return completion(.none, nil) }
         var result: Any? = nil
@@ -309,8 +358,9 @@ open class NetCache {
                     }
                 } else {
                     result = NSKeyedUnarchiver.unarchiveObject(withFile: filePath)
+                    let date = strongSelf.fileModificationDate(atPath: filePath) ?? .distantPast
                     DispatchQueue.main.async {
-                        completion(.disk, result)
+                        completion(.disk(updateDate: date), result)
                     }
                 }
             }
@@ -318,8 +368,9 @@ open class NetCache {
             var type = CacheType.none
             ioQueue.sync { [unowned self] in
                 if  !self.fileExpired(atPath: filePath, expiresIn: expire) {
+                    let date = self.fileModificationDate(atPath: filePath) ?? .distantPast
                     result = NSKeyedUnarchiver.unarchiveObject(withFile: filePath)
-                    type = .disk
+                    type = .disk(updateDate: date)
                 }
             }
             completion(type, result)
@@ -339,7 +390,7 @@ open class NetCache {
     open func deleteResponse(forUrl url: URLConvertible, param: Parameters?, fromMemory: Bool = true, fromDisk: Bool = true, keyGenerator generator: KeyGenerator = DefaultGenerator) {
         let key = generator(url, param)
         if fromMemory && memoryCacheExists(forKey: key) {
-            memoryCache.removeObject(forKey: key as NSString)
+            memoryCache.removeObject(forKey: key)
         }
         if fromDisk && diskCacheExists(forKey: key) {
             ioQueue.async {[weak self] in
@@ -365,7 +416,7 @@ open class NetCache {
             exists = fileManager.fileExists(atPath: (filePath as NSString).deletingPathExtension)
         }
         if exists {
-            exists = fileExpired(atPath: key, expiresIn: expire)
+            exists = !fileExpired(atPath: key, expiresIn: expire)
         }
         return exists
     }

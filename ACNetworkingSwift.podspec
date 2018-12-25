@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
     s.name         = "ACNetworkingSwift"
-    s.version      = "0.0.2"
+    s.version      = "0.0.3"
     s.platform     = :ios, "9.0"
     s.ios.deployment_target = '9.0'
     s.summary      = "A networking tool with memory and disk cache in swift" #简介
