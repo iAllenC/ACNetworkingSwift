@@ -19,6 +19,10 @@ class ViewController: UIViewController {
     
     @IBOutlet var optionButtons: [UIButton]!
     
+    @IBOutlet weak var longField: UITextField!
+    
+    @IBOutlet weak var latField: UITextField!
+    
     var options: Networking.FetchOptions {
         var targetOptions: Networking.FetchOptions = []
         for btn in optionButtons {
@@ -68,7 +72,9 @@ class ViewController: UIViewController {
     @IBAction func sendAction(_ sender: UIButton) {
         /** 天气接口场景并不适合做缓存,本demo只是用作示例. */
         let url = "https://free-api.heweather.com/v5/weather"
-        let param = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "32,118.5"]
+        let lat = latField.text!.isEmpty ? "32" : latField.text!
+        let long = longField.text!.isEmpty ? "118.5" : longField.text!
+        let param = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "\(lat),\(long)"]
         var expire: TimeInterval
         if let text = self.expireTimeField.text, let expireTime = Double(text) {
             expire = expireTime <= 0 ? .always : expireTime

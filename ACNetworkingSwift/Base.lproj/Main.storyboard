@@ -26,7 +26,7 @@
                                 </segments>
                             </segmentedControl>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="zcc-NZ-J0l">
-                                <rect key="frame" x="0.0" y="58" width="375" height="368.5"/>
+                                <rect key="frame" x="0.0" y="58" width="375" height="317.5"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -143,13 +143,40 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="long:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ATR-7J-YZ2">
+                                <rect key="frame" x="20" y="400" width="38" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="32" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="GpH-ac-SwG">
+                                <rect key="frame" x="63" y="395.5" width="119.5" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="lat:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpA-tw-MqG">
+                                <rect key="frame" x="192.5" y="400" width="24" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="118.5" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VpD-7e-cbC">
+                                <rect key="frame" x="221.5" y="395.5" width="133.5" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="rpA-tw-MqG" firstAttribute="centerY" secondItem="ATR-7J-YZ2" secondAttribute="centerY" id="0Sz-r9-sCC"/>
                             <constraint firstItem="wQb-0w-1Nl" firstAttribute="top" secondItem="4KT-9u-h8w" secondAttribute="bottom" constant="20" id="2Zg-ez-2FV"/>
                             <constraint firstItem="C2S-zh-8bh" firstAttribute="top" secondItem="MjW-LP-Hep" secondAttribute="bottom" constant="20" id="2gs-Sf-Zgi"/>
                             <constraint firstItem="DUe-58-CKj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="3sK-7I-wBs"/>
+                            <constraint firstItem="VpD-7e-cbC" firstAttribute="centerY" secondItem="ATR-7J-YZ2" secondAttribute="centerY" id="8fB-ND-B26"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uLR-7A-KOJ" secondAttribute="trailing" constant="20" id="AKY-rR-uVi"/>
+                            <constraint firstItem="rpA-tw-MqG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="centerX" constant="5" id="AcB-t9-Pa2"/>
                             <constraint firstItem="NNM-4Y-kie" firstAttribute="top" secondItem="C2S-zh-8bh" secondAttribute="bottom" constant="20" id="CXm-ne-24b"/>
                             <constraint firstItem="uLR-7A-KOJ" firstAttribute="top" secondItem="7t2-Vv-OhH" secondAttribute="bottom" constant="20" id="D5K-KV-gLo"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wQb-0w-1Nl" secondAttribute="trailing" constant="20" id="HmL-iL-EJy"/>
@@ -157,18 +184,23 @@
                             <constraint firstItem="EpD-li-jR8" firstAttribute="centerY" secondItem="4KT-9u-h8w" secondAttribute="centerY" id="Jhd-bg-ar0"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="NNM-4Y-kie" secondAttribute="trailing" id="Kcb-H0-GDB"/>
                             <constraint firstItem="NNM-4Y-kie" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="L0I-Qo-GBH"/>
+                            <constraint firstItem="GpH-ac-SwG" firstAttribute="centerY" secondItem="ATR-7J-YZ2" secondAttribute="centerY" id="NCa-eI-wjg"/>
                             <constraint firstItem="C2S-zh-8bh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="NOd-NG-ErT"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="VpD-7e-cbC" secondAttribute="trailing" constant="20" id="Oo2-Hd-8fS"/>
                             <constraint firstItem="2un-EG-idI" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="PRc-YI-wHx"/>
                             <constraint firstItem="wQb-0w-1Nl" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="QMs-bs-lEA"/>
+                            <constraint firstItem="GpH-ac-SwG" firstAttribute="top" secondItem="zcc-NZ-J0l" secondAttribute="bottom" constant="20" id="Qpx-TR-FHb"/>
+                            <constraint firstItem="4KT-9u-h8w" firstAttribute="top" secondItem="ATR-7J-YZ2" secondAttribute="bottom" constant="20" id="R1G-59-b9d"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="zcc-NZ-J0l" secondAttribute="trailing" id="RCy-9F-bsA"/>
                             <constraint firstItem="NNM-4Y-kie" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="UAc-tE-l56"/>
                             <constraint firstItem="DUe-58-CKj" firstAttribute="top" secondItem="wQb-0w-1Nl" secondAttribute="bottom" constant="20" id="VuY-dj-Jj8"/>
-                            <constraint firstItem="EpD-li-jR8" firstAttribute="top" secondItem="zcc-NZ-J0l" secondAttribute="bottom" constant="10" id="XGp-89-zxG"/>
+                            <constraint firstItem="GpH-ac-SwG" firstAttribute="leading" secondItem="ATR-7J-YZ2" secondAttribute="trailing" constant="5" id="XbA-Et-hN4"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="7t2-Vv-OhH" secondAttribute="trailing" constant="20" id="bIM-gU-0eV"/>
                             <constraint firstItem="zcc-NZ-J0l" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="cnq-dC-4vw"/>
                             <constraint firstItem="4KT-9u-h8w" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="eTU-no-HHF"/>
                             <constraint firstItem="EpD-li-jR8" firstAttribute="leading" secondItem="4KT-9u-h8w" secondAttribute="trailing" constant="5" id="g9f-az-M4z"/>
                             <constraint firstItem="7t2-Vv-OhH" firstAttribute="leading" secondItem="MjW-LP-Hep" secondAttribute="trailing" constant="50" id="hu9-UQ-BHl"/>
+                            <constraint firstItem="VpD-7e-cbC" firstAttribute="leading" secondItem="rpA-tw-MqG" secondAttribute="trailing" constant="5" id="iT9-h6-UQE"/>
                             <constraint firstItem="aaH-B9-jcj" firstAttribute="leading" secondItem="DUe-58-CKj" secondAttribute="trailing" constant="50" id="j0k-ut-aQ0"/>
                             <constraint firstItem="2un-EG-idI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mLe-jk-NIz"/>
                             <constraint firstItem="NNM-4Y-kie" firstAttribute="top" secondItem="uLR-7A-KOJ" secondAttribute="bottom" constant="20" id="mqv-HF-Xmx"/>
@@ -176,12 +208,16 @@
                             <constraint firstItem="NNM-4Y-kie" firstAttribute="top" secondItem="lmj-GE-g6B" secondAttribute="bottom" constant="20" id="oAP-nQ-nf3"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="EpD-li-jR8" secondAttribute="trailing" constant="20" id="pAQ-iJ-iwZ"/>
                             <constraint firstItem="lmj-GE-g6B" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="sdO-td-MTk"/>
+                            <constraint firstItem="GpH-ac-SwG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="centerX" constant="-5" id="w6F-PX-BZg"/>
                             <constraint firstItem="lmj-GE-g6B" firstAttribute="top" secondItem="aaH-B9-jcj" secondAttribute="bottom" constant="20" id="wCW-Ua-hK6"/>
+                            <constraint firstItem="ATR-7J-YZ2" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="we3-sA-w7D"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="expireTimeField" destination="EpD-li-jR8" id="ok5-6y-HzL"/>
+                        <outlet property="latField" destination="VpD-7e-cbC" id="zb5-JY-6ex"/>
+                        <outlet property="longField" destination="GpH-ac-SwG" id="LZS-A5-BU7"/>
                         <outlet property="methodSegment" destination="2un-EG-idI" id="RuD-fr-8hc"/>
                         <outlet property="textView" destination="zcc-NZ-J0l" id="RUu-PU-btk"/>
                         <outletCollection property="optionButtons" destination="DUe-58-CKj" collectionClass="NSMutableArray" id="LF8-AR-Ufm"/>
@@ -195,6 +231,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="131.78410794602701"/>
         </scene>
     </scenes>
 </document>
