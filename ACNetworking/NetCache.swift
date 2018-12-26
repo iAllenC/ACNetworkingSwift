@@ -36,9 +36,9 @@ open class NetCache {
 
     open class MemoryCache: NSCache<NSString, AnyObject>  {
         
-        var expireDateDict: [String: Date] = [:]
+        private var expireDateDict: [String: Date] = [:]
         
-        var addedDateDict: [String: Date] = [:]
+        private var addedDateDict: [String: Date] = [:]
 
         //MARK: Override
         
@@ -102,7 +102,7 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - refresh: 是否要刷新过期时间(如果有)
-        func setObject(_ obj: AnyObject, forKey key: String, refreshExpireDate refresh: Bool) {
+        open func setObject(_ obj: AnyObject, forKey key: String, refreshExpireDate refresh: Bool) {
             super.setObject(obj, forKey: key as NSString)
             addedDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
@@ -117,7 +117,7 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - refresh: 是否要刷新过期时间(如果有)
-        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, refreshExpireDate refresh: Bool) {
+        open func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, refreshExpireDate refresh: Bool) {
             super.setObject(obj, forKey: key as NSString, cost: g)
             addedDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
@@ -131,7 +131,7 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - expire: 过期时长
-        func setObject(_ obj: AnyObject, forKey key: String, expiresIn expire: TimeInterval) {
+        open func setObject(_ obj: AnyObject, forKey key: String, expiresIn expire: TimeInterval) {
             setObject(obj, forKey: key, expireDate: Date(timeIntervalSinceNow: expire))
         }
         
@@ -141,7 +141,7 @@ open class NetCache {
         ///   - obj: 需缓存的对象
         ///   - key: key
         ///   - date: 过期日期
-        func setObject(_ obj: AnyObject, forKey key: String, expireDate date: Date?) {
+        open func setObject(_ obj: AnyObject, forKey key: String, expireDate date: Date?) {
             if let date = date {
                 expireDateDict.updateValue(date, forKey: key)
             } else {
@@ -157,7 +157,7 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - expire: 过期时长
-        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expiresIn expire: TimeInterval) {
+        open func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expiresIn expire: TimeInterval) {
             setObject(obj, forKey: key, cost: g, expireDate: Date(timeIntervalSinceNow: expire))
         }
         
@@ -168,7 +168,7 @@ open class NetCache {
         ///   - key: key
         ///   - g: 消耗
         ///   - date: 过期日期
-        func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expireDate date: Date?) {
+        open func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, expireDate date: Date?) {
             if let date = date {
                 expireDateDict.updateValue(date, forKey: key)
             } else {
@@ -183,14 +183,14 @@ open class NetCache {
         ///   - key: key
         ///   - expire: 过期时长
         /// - Returns: 缓存对象或nil
-        func object(forKey key: String, expiresIn expire: TimeInterval) -> AnyObject? {
+        open func object(forKey key: String, expiresIn expire: TimeInterval) -> AnyObject? {
             if let addedDate = addedDateDict[key], (addedDate + expire).timeIntervalSinceNow <= 0 {
                 return nil
             }
             return object(forKey: key)
         }
         
-        func updateDate(forKey key: String) -> Date? {
+        open func updateDate(forKey key: String) -> Date? {
             return addedDateDict[key]
         }
         

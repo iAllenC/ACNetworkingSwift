@@ -66,6 +66,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func sendAction(_ sender: UIButton) {
+        /** 天气接口场景并不适合做缓存,本demo只是用作示例. */
         let url = "https://free-api.heweather.com/v5/weather"
         let param = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "32,118.5"]
         var expire: TimeInterval
@@ -74,15 +75,10 @@ class ViewController: UIViewController {
         } else {
             expire = .never
         }
-        if methodSegment.selectedSegmentIndex == 0 {
-            requst = networking.fetch(url: url, options: options, method: .get, parameters: param, expiresIn: expire, completion: { [weak self](request, cacheType, response, error) in
-                self?.processNetCache(cacheType: cacheType, response: response, error: error)
-            })
-        } else {
-            requst = networking.fetch(url: url, options: options, method: .get, parameters: param, expiresIn: expire, completion: { [weak self](request, cacheType, response, error) in
-                self?.processNetCache(cacheType: cacheType, response: response, error: error)
-            })
-        }
+        /** 示例只演示了一个主要方法的调用,实际上针对不同场景,本框架都做了一定的便利封装,使用者可根据需要调用 */
+        requst = networking.fetch(url: url, options: options, method: methodSegment.selectedSegmentIndex == 0 ? .get : .post, parameters: param, expiresIn: expire, completion: { [weak self](request, cacheType, response, error) in
+            self?.processNetCache(cacheType: cacheType, response: response, error: error)
+        })
     }
     
     func processNetCache(cacheType: NetCache.CacheType, response: Any?, error: Error?) {

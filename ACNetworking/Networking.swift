@@ -22,8 +22,7 @@ open class Networking {
         /** 默认option 先取网络,请求失败再取本地,优先级最低.*/
         public static let netFirst = FetchOptions(rawValue: 0)
         
-        /** 以下option优先级逐渐降低 */
-        
+        //以下option优先级逐渐降低
         /** 传入这个option只请求网络数据,忽略本地 */
         public static let netOnly = FetchOptions(rawValue: 1 << 0)
         
@@ -36,7 +35,7 @@ open class Networking {
         /** 传入这个option先取本地(如果有的话),然后取网络 */
         public static let localAndNet = FetchOptions(rawValue: 1 << 3)
         
-        /** 以下option无冲突,无优先级区别 */
+        //以下option无冲突,无优先级区别
         
         /** 默认请求成功后会更新本地缓存的返回结果, 传入这个option将不更新缓存*/
         public static let notUpdateCache = FetchOptions(rawValue: 1 << 4)
@@ -114,8 +113,6 @@ open class Networking {
         }
     }
     
-    //MARK: Public
-    
     /// 根据传入的method和options发起(post/get)请求
     ///
     /// - Parameters:
@@ -142,6 +139,23 @@ open class Networking {
                 break
             }
         }
+    }
+    
+    /// 根据传入的options发起post请求,或获取本地数据
+    ///
+    /// - Parameters:
+    ///   - url: URL
+    ///   - options: options
+    ///   - parameters: parameters
+    ///   - encoding: encoding
+    ///   - headers: headers
+    ///   - expire: 过期时间
+    ///   - generator: 存储key生成器
+    ///   - completion: 回调
+    /// - Returns: DataRequest
+    @discardableResult
+    open func get(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+        return fetch(url:url, options:options, method:.get, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
     }
 
     /// 发起get请求
@@ -221,6 +235,23 @@ open class Networking {
         return fetch(url: url, options: .localAndNet, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
+    /// 根据传入的options发起post请求,或获取本地数据
+    ///
+    /// - Parameters:
+    ///   - url: URL
+    ///   - options: options
+    ///   - parameters: parameters
+    ///   - encoding: encoding
+    ///   - headers: headers
+    ///   - expire: 过期时间
+    ///   - generator: 存储key生成器
+    ///   - completion: 回调
+    /// - Returns: DataRequest
+    @discardableResult
+    open func post(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+        return fetch(url:url, options:options, method:.post, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
+    }
+
     /// 发起post请求
     ///
     /// - Parameters:
