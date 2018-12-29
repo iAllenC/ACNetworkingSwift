@@ -143,26 +143,26 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="long:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ATR-7J-YZ2">
-                                <rect key="frame" x="20" y="400" width="38" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="lat:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ATR-7J-YZ2">
+                                <rect key="frame" x="20" y="400" width="24" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="32" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="GpH-ac-SwG">
-                                <rect key="frame" x="63" y="395.5" width="119.5" height="30"/>
+                                <rect key="frame" x="49" y="395.5" width="133.5" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="lat:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpA-tw-MqG">
-                                <rect key="frame" x="192.5" y="400" width="24" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="long:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpA-tw-MqG">
+                                <rect key="frame" x="192.5" y="400" width="38" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="118.5" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VpD-7e-cbC">
-                                <rect key="frame" x="221.5" y="395.5" width="133.5" height="30"/>
+                                <rect key="frame" x="235.5" y="395.5" width="119.5" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -216,8 +216,8 @@
                     </view>
                     <connections>
                         <outlet property="expireTimeField" destination="EpD-li-jR8" id="ok5-6y-HzL"/>
-                        <outlet property="latField" destination="VpD-7e-cbC" id="zb5-JY-6ex"/>
-                        <outlet property="longField" destination="GpH-ac-SwG" id="LZS-A5-BU7"/>
+                        <outlet property="latField" destination="GpH-ac-SwG" id="ZDx-M9-E2E"/>
+                        <outlet property="longField" destination="VpD-7e-cbC" id="bdg-Gb-q6W"/>
                         <outlet property="methodSegment" destination="2un-EG-idI" id="RuD-fr-8hc"/>
                         <outlet property="textView" destination="zcc-NZ-J0l" id="RUu-PU-btk"/>
                         <outletCollection property="optionButtons" destination="DUe-58-CKj" collectionClass="NSMutableArray" id="LF8-AR-Ufm"/>

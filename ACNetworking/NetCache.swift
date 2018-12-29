@@ -38,7 +38,7 @@ open class NetCache {
         
         private var expireDateDict: [String: Date] = [:]
         
-        private var addedDateDict: [String: Date] = [:]
+        private var updateDateDict: [String: Date] = [:]
 
         //MARK: Override
         
@@ -104,7 +104,7 @@ open class NetCache {
         ///   - refresh: 是否要刷新过期时间(如果有)
         open func setObject(_ obj: AnyObject, forKey key: String, refreshExpireDate refresh: Bool) {
             super.setObject(obj, forKey: key as NSString)
-            addedDateDict.updateValue(Date(), forKey: key)
+            updateDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
                 expireDateDict.removeValue(forKey: key)
             }
@@ -119,7 +119,7 @@ open class NetCache {
         ///   - refresh: 是否要刷新过期时间(如果有)
         open func setObject(_ obj: AnyObject, forKey key: String, cost g: Int, refreshExpireDate refresh: Bool) {
             super.setObject(obj, forKey: key as NSString, cost: g)
-            addedDateDict.updateValue(Date(), forKey: key)
+            updateDateDict.updateValue(Date(), forKey: key)
             if refresh, expireDateDict.keys.contains(key) {
                 expireDateDict.removeValue(forKey: key)
             }
@@ -184,14 +184,14 @@ open class NetCache {
         ///   - expire: 过期时长
         /// - Returns: 缓存对象或nil
         open func object(forKey key: String, expiresIn expire: TimeInterval) -> AnyObject? {
-            if let addedDate = addedDateDict[key], (addedDate + expire).timeIntervalSinceNow <= 0 {
+            if let addedDate = updateDateDict[key], (addedDate + expire).timeIntervalSinceNow <= 0 {
                 return nil
             }
             return object(forKey: key)
         }
         
         open func updateDate(forKey key: String) -> Date? {
-            return addedDateDict[key]
+            return updateDateDict[key]
         }
         
     }
@@ -205,6 +205,9 @@ open class NetCache {
     /// 文件管理
     public let fileManager = FileManager()
     
+    /// 缓存key生成器
+    public var keyGenerator: KeyGenerator
+    
     /// 读写串行Queue
     private let ioQueue = DispatchQueue(label: "com.acnetworking.netcache")
     
@@ -216,11 +219,12 @@ open class NetCache {
     /// - Parameters:
     ///   - nameSpace: 缓存目录名称
     ///   - directory: 缓存目录
-    public init(nameSpace: String = "defaultCache", diskDirectory directory: String? = nil) {
+    public init(nameSpace: String = "defaultCache", diskDirectory directory: String? = nil, keyGenerator: KeyGenerator? = nil) {
         self.nameSpace = nameSpace
         self.memoryCache.name = nameSpace
         let cacheDirectory = directory ?? NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first ?? ""
         self.diskDirectory = (cacheDirectory as NSString).appendingPathComponent("com.acnetworking.netcache." + self.nameSpace)
+        self.keyGenerator = keyGenerator ?? DefaultGenerator
     }
     
     //MARK: Check
@@ -233,7 +237,7 @@ open class NetCache {
     ///   - expire: 过期时间
     ///   - generator: 缓存key生成器
     /// - Returns: 是否存在缓存
-    open func cacheExists(forUrl url: URLConvertible, param: Parameters? = nil, expirsIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator = DefaultGenerator) -> Bool {
+    open func cacheExists(forUrl url: URLConvertible, param: Parameters? = nil, expirsIn expire: TimeInterval = .never, keyGenerator generator:  KeyGenerator? = nil) -> Bool {
         return memoryCacheExists(forUrl: url, param: param, expirsIn: expire, keyGenerator: generator) || diskCacheExists(forUrl: url, param: param, expirsIn: expire, keyGenerator: generator)
     }
     
@@ -245,8 +249,8 @@ open class NetCache {
     ///   - expire: 过期时间
     ///   - generator: 缓存key生成器
     /// - Returns: 是否存在内存缓存
-    open func memoryCacheExists(forUrl url: URLConvertible, param: Parameters? = nil, expirsIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator = DefaultGenerator) -> Bool {
-        return memoryCacheExists(forKey: generator(url, param), expiresIn: expire)
+    open func memoryCacheExists(forUrl url: URLConvertible, param: Parameters? = nil, expirsIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil) -> Bool {
+        return memoryCacheExists(forKey: (generator ?? keyGenerator)(url, param), expiresIn: expire)
     }
     
     /// 检查传入key是否存在内存缓存
@@ -267,8 +271,8 @@ open class NetCache {
     ///   - expire: 过期时间
     ///   - generator: 缓存key生成器
     /// - Returns: 是否存在磁盘缓存
-    open func diskCacheExists(forUrl url: URLConvertible, param: Parameters?, expirsIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator = DefaultGenerator) -> Bool {
-        return diskCacheExists(forKey: generator(url, param), expiresIn: expire)
+    open func diskCacheExists(forUrl url: URLConvertible, param: Parameters?, expirsIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil) -> Bool {
+        return diskCacheExists(forKey: (generator ?? keyGenerator)(url, param), expiresIn: expire)
     }
     
     /// 检查传入key是否存在磁盘缓存
@@ -307,9 +311,9 @@ open class NetCache {
     ///   - toMemory: 是否缓存至内存
     ///   - toDisk: 是否缓存至磁盘
     ///   - generator: 存储key生成器
-    open func storeResponse(_ response: Any, forUrl url: URLConvertible, param: Parameters? = nil, toMemory: Bool = true, toDisk: Bool = true, keyGenerator generator: KeyGenerator = DefaultGenerator) {
+    open func storeResponse(_ response: Any, forUrl url: URLConvertible, param: Parameters? = nil, toMemory: Bool = true, toDisk: Bool = true, keyGenerator generator: KeyGenerator? = nil) {
         if !toMemory && !toDisk { return }
-        let key = generator(url, param)
+        let key = (generator ?? keyGenerator)(url, param)
         if toMemory {
             memoryCache.setObject(response as AnyObject, forKey: key)
         }
@@ -342,8 +346,8 @@ open class NetCache {
     ///   - async: 是否异步获取
     ///   - generator: 缓存key生成器
     ///   - completion: 回调
-    open func fetchResponse(forUrl url: URLConvertible, param: Parameters?, expiresIn expire: TimeInterval = .never, async: Bool = true, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: @escaping FetchCompletion) {
-        let storeKey = generator(url, param)
+    open func fetchResponse(forUrl url: URLConvertible, param: Parameters?, expiresIn expire: TimeInterval = .never, async: Bool = true, keyGenerator generator: KeyGenerator? = nil, completion: @escaping FetchCompletion) {
+        let storeKey = (generator ?? keyGenerator)(url, param)
         if let result = memoryCache.object(forKey: storeKey, expiresIn: expire) {
             return completion(.memory(updateDate: memoryCache.updateDate(forKey: storeKey) ?? .distantPast), result)
         }
@@ -387,8 +391,8 @@ open class NetCache {
     ///   - fromMemory: 是否删除内存缓存
     ///   - fromDisk: 是否删除磁盘缓存
     ///   - generator: 缓存key生成器
-    open func deleteResponse(forUrl url: URLConvertible, param: Parameters?, fromMemory: Bool = true, fromDisk: Bool = true, keyGenerator generator: KeyGenerator = DefaultGenerator) {
-        let key = generator(url, param)
+    open func deleteResponse(forUrl url: URLConvertible, param: Parameters?, fromMemory: Bool = true, fromDisk: Bool = true, keyGenerator generator: KeyGenerator? = nil) {
+        let key = (generator ?? keyGenerator)(url, param)
         if fromMemory && memoryCacheExists(forKey: key) {
             memoryCache.removeObject(forKey: key)
         }

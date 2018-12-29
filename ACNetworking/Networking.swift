@@ -74,8 +74,8 @@ open class Networking {
     ///   - configuration: sessionConfiguration
     ///   - namespace: 缓存目录命名空间
     ///   - directory: 缓存目录path
-    public convenience init(configuration: URLSessionConfiguration, cacheNamespace namespace: String = "defaultCache", cacheDirectory directory: String? = nil) {
-        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: namespace, diskDirectory: directory))
+    public convenience init(configuration: URLSessionConfiguration, cacheNamespace namespace: String = "defaultCache", cacheDirectory directory: String? = nil, keyGenerator generator: KeyGenerator? = nil) {
+        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: namespace, diskDirectory: directory, keyGenerator:generator))
     }
     
     //MARK: Public
@@ -94,7 +94,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func fetch(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func fetch(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         if shouldFetchLocalResponse(forUrl: url, param: parameters, options: options, expiresIn: expire) {
             let async = options.contains(.localOnly) || options.contains(.localFirst)
             responseCache.fetchResponse(forUrl: url, param: parameters, expiresIn: expire, async: async, keyGenerator: generator) { [weak self](cacheType, response) in
@@ -127,7 +127,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    func fetchNet(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest {
+    func fetchNet(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest {
         let request = sessionManager.request(url, method: method, parameters: parameters, encoding: encoding, headers: nil)
         return request.responseJSON { [weak self]response in
             switch(response.result) {
@@ -154,7 +154,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func get(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func get(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url:url, options:options, method:.get, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
     }
 
@@ -170,7 +170,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func getNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func getNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .netOnly, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -186,7 +186,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func getRequest(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func getRequest(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .netFirst, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -202,7 +202,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func getData(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func getData(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .localFirst, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -216,7 +216,7 @@ open class Networking {
     ///   - expire: 过期时间
     ///   - generator: 存储key生成器
     ///   - completion: 回调
-    open func getLocal(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
+    open func getLocal(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) {
         fetch(url: url, options: .localOnly, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -231,7 +231,7 @@ open class Networking {
     ///   - generator: 存储key生成器
     ///   - completion: 回调
     @discardableResult
-    open func getLocalThenNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func getLocalThenNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .localAndNet, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -248,7 +248,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func post(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func post(url: URLConvertible, options:FetchOptions, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url:url, options:options, method:.post, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
     }
 
@@ -264,7 +264,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func postNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func postNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .netOnly, method: .post, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -280,7 +280,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func postRequest(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func postRequest(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .always, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .netFirst, method: .post, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
     
@@ -296,7 +296,7 @@ open class Networking {
     ///   - completion: 回调
     /// - Returns: DataRequest
     @discardableResult
-    open func postData(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func postData(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .localFirst, method: .get, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
 
@@ -310,7 +310,7 @@ open class Networking {
     ///   - expire: 过期时间
     ///   - generator: 存储key生成器
     ///   - completion: 回调
-    open func postLocal(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
+    open func postLocal(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) {
         fetch(url: url, options: .localOnly, method: .post, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
 
@@ -325,7 +325,7 @@ open class Networking {
     ///   - generator: 存储key生成器
     ///   - completion: 回调
     @discardableResult
-    open func postLocalThenNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: @escaping KeyGenerator = DefaultGenerator, completion: Completion? = nil) -> DataRequest? {
+    open func postLocalThenNet(fromUrl url: URLConvertible, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval = .never, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         return fetch(url: url, options: .localAndNet, method: .post, parameters: parameters, encoding: encoding, headers: headers, expiresIn: expire, keyGenerator: generator, completion: completion)
     }
 
@@ -342,7 +342,7 @@ open class Networking {
     ///   - response: response
     ///   - generator: 存储key生成器
     ///   - completion: 回调
-    private func handleHttpSuccess(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expires: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, response: Any, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
+    private func handleHttpSuccess(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expires: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, response: Any, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) {
         completion?(request, .net, response, nil)
         if options.contains(.deleteCache) {
             return responseCache.deleteResponse(forUrl: url, param: parameters)
@@ -365,7 +365,7 @@ open class Networking {
     ///   - error: error
     ///   - generator: 存储key生成器
     ///   - completion: 回调
-    private func handleHttpFailure(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expiresIn expire: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, error: Error, keyGenerator generator: KeyGenerator = DefaultGenerator, completion: Completion? = nil) {
+    private func handleHttpFailure(url: URLConvertible, parameters: Parameters?, request: DataRequest? = nil, expiresIn expire: TimeInterval, options:FetchOptions, headers: HTTPHeaders? = nil, error: Error, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) {
         if options.contains(.netOnly) || options.contains(.localOnly) || options.contains(.localFirst) {
             //只读网络、优先读本地、先读本地再取网络,直接回调(优先读本地或先读本地走到失败意味着本地没有缓存)
             completion?(request, .none, nil, error)

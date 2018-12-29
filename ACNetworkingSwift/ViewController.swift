@@ -23,6 +23,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var latField: UITextField!
     
+    var requst: DataRequest?
+    
     var options: Networking.FetchOptions {
         var targetOptions: Networking.FetchOptions = []
         for btn in optionButtons {
@@ -32,12 +34,12 @@ class ViewController: UIViewController {
         return targetOptions
     }
     
-    var requst: DataRequest?
-    
     private let networking: Networking = {
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 5
-        return Networking(configuration: configuration, cacheDirectory: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first)
+        configuration.timeoutIntervalForRequest = 10
+        return Networking(configuration: configuration, cacheDirectory: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first, keyGenerator: { (url, param) -> String in
+            DefaultGenerator(url, param) + "_test"
+        })
     }()
 
     override func viewDidLoad() {
@@ -74,7 +76,7 @@ class ViewController: UIViewController {
         let url = "https://free-api.heweather.com/v5/weather"
         let lat = latField.text!.isEmpty ? "32" : latField.text!
         let long = longField.text!.isEmpty ? "118.5" : longField.text!
-        let param = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "\(lat),\(long)"]
+        let param: Parameters = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "\(lat),\(long)", "test1": ["a", "b"], "test2": ["a": "A", "b": "B"]]
         var expire: TimeInterval
         if let text = self.expireTimeField.text, let expireTime = Double(text) {
             expire = expireTime <= 0 ? .always : expireTime
