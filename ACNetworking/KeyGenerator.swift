@@ -30,6 +30,7 @@ public let DefaultGenerator: KeyGenerator = { (url: URLConvertible, param: Param
 }
 
 private func ac_jsonStrong(forObj obj: Any) -> String? {
+    guard JSONSerialization.isValidJSONObject(obj) else { return nil }
     guard let jsonData = try? JSONSerialization.data(withJSONObject: obj, options: JSONSerialization.WritingOptions(rawValue: 0)) else { return nil }
     return String(data: jsonData, encoding: .utf8)
 }
@@ -37,7 +38,7 @@ private func ac_jsonStrong(forObj obj: Any) -> String? {
 private extension String {
     var ac_md5: String {
         if self.isEmpty { return "" }
-        let str = self.cString(using: String.Encoding.utf8)
+        let str = self.cString(using: .utf8)
         let strLen = CUnsignedInt(self.lengthOfBytes(using: String.Encoding.utf8))
         let digestLen = Int(CC_MD5_DIGEST_LENGTH)
         let result = UnsafeMutablePointer<UInt8>.allocate(capacity: 16)

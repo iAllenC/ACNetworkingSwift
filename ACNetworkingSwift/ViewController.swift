@@ -78,7 +78,7 @@ class ViewController: UIViewController {
         let long = longField.text!.isEmpty ? "118.5" : longField.text!
         let param: Parameters = ["key": "d9c261ebfe4644aeaea3028bcf10e149", "city": "\(lat),\(long)", "test1": ["a", "b"], "test2": ["a": "A", "b": "B"]]
         var expire: TimeInterval
-        if let text = self.expireTimeField.text, let expireTime = Double(text) {
+        if let text = expireTimeField.text, let expireTime = Double(text) {
             expire = expireTime <= 0 ? .always : expireTime
         } else {
             expire = .never

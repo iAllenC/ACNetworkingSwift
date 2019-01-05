@@ -331,7 +331,11 @@ open class NetCache {
     open func storeResponseToDisk(_ response: Any, forKey key: String) {
         ioQueue.async {[weak self] in
             guard let path = self?.filePath(forStoreKey: key) else { return }
-            try? NSKeyedArchiver.archivedData(withRootObject: response).write(to: URL(fileURLWithPath: path), options: .atomic)
+            do {
+                try NSKeyedArchiver.archivedData(withRootObject: response).write(to: URL(fileURLWithPath: path), options: .atomic)
+            } catch {
+                print("缓存结果:\(response)\n至目标路径:\(path)失败,错误内容:\(error)")
+            }
         }
     }
     
@@ -399,7 +403,11 @@ open class NetCache {
         if fromDisk && diskCacheExists(forKey: key) {
             ioQueue.async {[weak self] in
                 if let strongSelf = self, let filePath = strongSelf.filePath(forStoreKey: key), strongSelf.fileManager.fileExists(atPath: filePath) {
-                    try? strongSelf.fileManager.removeItem(atPath: filePath)
+                    do {
+                        try strongSelf.fileManager.removeItem(atPath: filePath)
+                    } catch {
+                        print("删除目标路径:\(filePath)缓存失败,错误内容:\(error)")
+                    }
                 }
             }
         }
@@ -442,8 +450,12 @@ open class NetCache {
     ///   - key: 属性Key
     /// - Returns: 属性Value
     private func propertyOfFile(atPath path: String, forKey key: FileAttributeKey) -> Any? {
-        guard let attributes = try? fileManager.attributesOfItem(atPath: path) else { return nil }
-        return attributes[key]
+        do {
+            return (try fileManager.attributesOfItem(atPath: path))[key]
+        } catch {
+            print("获取目标路径:\(path)相关属性失败:\(key),\n错误内容:\(error)")
+            return nil
+        }
     }
     
     /// 获取缓存文件存储路径
@@ -455,6 +467,7 @@ open class NetCache {
             do {
                 try fileManager.createDirectory(atPath: diskDirectory, withIntermediateDirectories: true, attributes: nil)
             } catch {
+                print("缓存目录创建失败:\(diskDirectory)")
                 return nil
             }
         }
