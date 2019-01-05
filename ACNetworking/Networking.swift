@@ -96,6 +96,7 @@ open class Networking {
     @discardableResult
     open func fetch(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest? {
         if shouldFetchLocalResponse(forUrl: url, param: parameters, options: options, expiresIn: expire) {
+            /** 如果options包含localOnly或localFirst,则异步获取本地数据.否则说明传入了localAndNet,同步获取本地数据,且在获取本地数据之后发起网络请求,获取网络数据 */
             let async = options.contains(.localOnly) || options.contains(.localFirst)
             responseCache.fetchResponse(forUrl: url, param: parameters, expiresIn: expire, async: async, keyGenerator: generator) { [weak self](cacheType, response) in
                 completion?(nil, cacheType, response, cacheType == .none ? NetFetchError.noCache : nil)
@@ -103,11 +104,7 @@ open class Networking {
                     self?.responseCache.deleteResponse(forUrl: url, param: parameters)
                 }
             }
-            if !async {
-                return fetchNet(url:url, options:options, method:method, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
-            } else {
-                return nil
-            }
+            return async ? nil : fetchNet(url:url, options:options, method:method, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
         } else {
             return fetchNet(url:url, options:options, method:method, parameters:parameters, encoding:encoding, headers:headers, expiresIn:expire, keyGenerator:generator, completion:completion)
         }
