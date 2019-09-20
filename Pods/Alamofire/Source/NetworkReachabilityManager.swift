@@ -1,7 +1,7 @@
 //
 //  NetworkReachabilityManager.swift
 //
-//  Copyright (c) 2014-2016 Alamofire Software Foundation (http://alamofire.org/)
+//  Copyright (c) 2014-2018 Alamofire Software Foundation (http://alamofire.org/)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -34,33 +34,21 @@ import SystemConfiguration
 /// network requests when a connection is established. It should not be used to prevent a user from initiating a network
 /// request, as it's possible that an initial request may be required to establish reachability.
 open class NetworkReachabilityManager {
-    /**
-        Defines the various states of network reachability.
-
-        - Unknown:         It is unknown whether the network is reachable.
-        - NotReachable:    The network is not reachable.
-        - ReachableOnWWAN: The network is reachable over the WWAN connection.
-        - ReachableOnWiFi: The network is reachable over the WiFi connection.
-    */
-
-
     /// Defines the various states of network reachability.
-    ///
-    /// - unknown:      It is unknown whether the network is reachable.
-    /// - notReachable: The network is not reachable.
-    /// - reachable:    The network is reachable.
     public enum NetworkReachabilityStatus {
+        /// It is unknown whether the network is reachable.
         case unknown
+        /// The network is not reachable.
         case notReachable
+        /// The network is reachable on the associated `ConnectionType`.
         case reachable(ConnectionType)
     }
 
     /// Defines the various connection types detected by reachability flags.
-    ///
-    /// - ethernetOrWiFi: The connection type is either over Ethernet or WiFi.
-    /// - wwan:           The connection type is a WWAN connection.
     public enum ConnectionType {
+        /// The connection type is either over Ethernet or WiFi.
         case ethernetOrWiFi
+        /// The connection type is a WWAN connection.
         case wwan
     }
 
@@ -91,7 +79,8 @@ open class NetworkReachabilityManager {
     /// A closure executed when the network reachability status changes.
     open var listener: Listener?
 
-    private var flags: SCNetworkReachabilityFlags? {
+    /// Flags of the current reachability type, if any.
+    open var flags: SCNetworkReachabilityFlags? {
         var flags = SCNetworkReachabilityFlags()
 
         if SCNetworkReachabilityGetFlags(reachability, &flags) {
@@ -102,26 +91,23 @@ open class NetworkReachabilityManager {
     }
 
     private let reachability: SCNetworkReachability
-    private var previousFlags: SCNetworkReachabilityFlags
+    /// Reachability flags of the previous reachability state.
+    open var previousFlags: SCNetworkReachabilityFlags
 
     // MARK: - Initialization
 
-    /// Creates a `NetworkReachabilityManager` instance with the specified host.
+    /// Creates an instance with the specified host.
     ///
-    /// - parameter host: The host used to evaluate network reachability.
-    ///
-    /// - returns: The new `NetworkReachabilityManager` instance.
+    /// - Parameter host: Host used to evaluate network reachability. Must not include the scheme (i.e. `https`).
     public convenience init?(host: String) {
         guard let reachability = SCNetworkReachabilityCreateWithName(nil, host) else { return nil }
         self.init(reachability: reachability)
     }
 
-    /// Creates a `NetworkReachabilityManager` instance that monitors the address 0.0.0.0.
+    /// Creates an instance that monitors the address 0.0.0.0.
     ///
     /// Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
     /// status of the device, both IPv4 and IPv6.
-    ///
-    /// - returns: The new `NetworkReachabilityManager` instance.
     public convenience init?() {
         var address = sockaddr_in()
         address.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
@@ -138,7 +124,9 @@ open class NetworkReachabilityManager {
 
     private init(reachability: SCNetworkReachability) {
         self.reachability = reachability
-        self.previousFlags = SCNetworkReachabilityFlags()
+
+        // Set the previous flags to an unreserved value to represent unknown status
+        self.previousFlags = SCNetworkReachabilityFlags(rawValue: 1 << 30)
     }
 
     deinit {
@@ -149,7 +137,7 @@ open class NetworkReachabilityManager {
 
     /// Starts listening for changes in network reachability status.
     ///
-    /// - returns: `true` if listening was started successfully, `false` otherwise.
+    /// - Returns: `true` if listening was started successfully, `false` otherwise.
     @discardableResult
     open func startListening() -> Bool {
         var context = SCNetworkReachabilityContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
@@ -167,8 +155,8 @@ open class NetworkReachabilityManager {
         let queueEnabled = SCNetworkReachabilitySetDispatchQueue(reachability, listenerQueue)
 
         listenerQueue.async {
-            self.previousFlags = SCNetworkReachabilityFlags()
-            self.notifyListener(self.flags ?? SCNetworkReachabilityFlags())
+            guard let flags = self.flags else { return }
+            self.notifyListener(flags)
         }
 
         return callbackEnabled && queueEnabled
@@ -192,48 +180,43 @@ open class NetworkReachabilityManager {
     // MARK: - Internal - Network Reachability Status
 
     func networkReachabilityStatusForFlags(_ flags: SCNetworkReachabilityFlags) -> NetworkReachabilityStatus {
-        guard flags.contains(.reachable) else { return .notReachable }
+        guard isNetworkReachable(with: flags) else { return .notReachable }
 
-        var networkStatus: NetworkReachabilityStatus = .notReachable
+        var networkStatus: NetworkReachabilityStatus = .reachable(.ethernetOrWiFi)
 
-        if !flags.contains(.connectionRequired) { networkStatus = .reachable(.ethernetOrWiFi) }
-
-        if flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic) {
-            if !flags.contains(.interventionRequired) { networkStatus = .reachable(.ethernetOrWiFi) }
-        }
-
-        #if os(iOS)
-            if flags.contains(.isWWAN) { networkStatus = .reachable(.wwan) }
-        #endif
+    #if os(iOS)
+        if flags.contains(.isWWAN) { networkStatus = .reachable(.wwan) }
+    #endif
 
         return networkStatus
+    }
+
+    func isNetworkReachable(with flags: SCNetworkReachabilityFlags) -> Bool {
+        let isReachable = flags.contains(.reachable)
+        let needsConnection = flags.contains(.connectionRequired)
+        let canConnectAutomatically = flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic)
+        let canConnectWithoutUserInteraction = canConnectAutomatically && !flags.contains(.interventionRequired)
+
+        return isReachable && (!needsConnection || canConnectWithoutUserInteraction)
     }
 }
 
 // MARK: -
 
-extension NetworkReachabilityManager.NetworkReachabilityStatus: Equatable {}
-
-/// Returns whether the two network reachability status values are equal.
-///
-/// - parameter lhs: The left-hand side value to compare.
-/// - parameter rhs: The right-hand side value to compare.
-///
-/// - returns: `true` if the two values are equal, `false` otherwise.
-public func ==(
-    lhs: NetworkReachabilityManager.NetworkReachabilityStatus,
-    rhs: NetworkReachabilityManager.NetworkReachabilityStatus)
-    -> Bool
-{
-    switch (lhs, rhs) {
-    case (.unknown, .unknown):
-        return true
-    case (.notReachable, .notReachable):
-        return true
-    case let (.reachable(lhsConnectionType), .reachable(rhsConnectionType)):
-        return lhsConnectionType == rhsConnectionType
-    default:
-        return false
+extension NetworkReachabilityManager.NetworkReachabilityStatus: Equatable {
+    public static func ==(
+        lhs: NetworkReachabilityManager.NetworkReachabilityStatus,
+        rhs: NetworkReachabilityManager.NetworkReachabilityStatus)
+        -> Bool
+    {
+        switch (lhs, rhs) {
+        case (.unknown, .unknown), (.notReachable, .notReachable):
+            return true
+        case let (.reachable(lhsConnectionType), .reachable(rhsConnectionType)):
+            return lhsConnectionType == rhsConnectionType
+        default:
+            return false
+        }
     }
 }
 

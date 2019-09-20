@@ -54,17 +54,17 @@ open class Networking {
 
     public static let shared = Networking()
     
-    public let sessionManager: SessionManager
+    public let session: Session
     
     public let responseCache:NetCache
     
     /// 通过传入的SessionManager和NetCache构造实例
     ///
     /// - Parameters:
-    ///   - sessionManager: SessionManager
+    ///   - session: Session
     ///   - responseCache: 缓存工具
-    public init(sessionManager: SessionManager = SessionManager.default, responseCache: NetCache = NetCache()) {
-        self.sessionManager = sessionManager
+    public init(session: Session = Session.default, responseCache: NetCache = NetCache()) {
+        self.session = session
         self.responseCache = responseCache
     }
     
@@ -75,7 +75,7 @@ open class Networking {
     ///   - namespace: 缓存目录命名空间
     ///   - directory: 缓存目录path
     public convenience init(configuration: URLSessionConfiguration, cacheNamespace namespace: String = "defaultCache", cacheDirectory directory: String? = nil, keyGenerator generator: KeyGenerator? = nil) {
-        self.init(sessionManager: SessionManager(configuration: configuration), responseCache: NetCache(nameSpace: namespace, diskDirectory: directory, keyGenerator:generator))
+        self.init(session: Session(configuration: configuration), responseCache: NetCache(nameSpace: namespace, diskDirectory: directory, keyGenerator:generator))
     }
     
     //MARK: Public
@@ -125,7 +125,7 @@ open class Networking {
     /// - Returns: DataRequest
     @discardableResult
     func fetchNet(url: URLConvertible, options:FetchOptions, method: HTTPMethod, parameters: Parameters?, encoding: ParameterEncoding = URLEncoding.default, headers: HTTPHeaders? = nil, expiresIn expire: TimeInterval, keyGenerator generator: KeyGenerator? = nil, completion: Completion? = nil) -> DataRequest {
-        let request = sessionManager.request(url, method: method, parameters: parameters, encoding: encoding, headers: nil)
+        let request = session.request(url, method: method, parameters: parameters, encoding: encoding, headers: nil)
         return request.responseJSON { [weak self]response in
             switch(response.result) {
             case .success(let v):
