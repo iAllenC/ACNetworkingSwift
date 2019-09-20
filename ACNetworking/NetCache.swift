@@ -334,7 +334,7 @@ open class NetCache {
             do {
                 try NSKeyedArchiver.archivedData(withRootObject: response).write(to: URL(fileURLWithPath: path), options: .atomic)
             } catch {
-                print("缓存结果:\(response)\n至目标路径:\(path)失败,错误内容:\(error)")
+                print("缓存结果:\(response)\n至目标路径:\(path)失败,\n错误信息:\(error)")
             }
         }
     }
@@ -406,7 +406,7 @@ open class NetCache {
                     do {
                         try strongSelf.fileManager.removeItem(atPath: filePath)
                     } catch {
-                        print("删除目标路径:\(filePath)缓存失败,错误内容:\(error)")
+                        print("删除目标路径:\(filePath)缓存失败,错误信息:\(error)")
                     }
                 }
             }
@@ -453,7 +453,7 @@ open class NetCache {
         do {
             return (try fileManager.attributesOfItem(atPath: path))[key]
         } catch {
-            print("获取目标路径:\(path)相关属性失败:\(key),\n错误内容:\(error)")
+            print("获取目标路径:\(path)相关属性失败:\(key),\n错误信息:\(error)")
             return nil
         }
     }
